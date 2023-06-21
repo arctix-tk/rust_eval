@@ -126,5 +126,12 @@ impl ShuntiyardParser {
 
 // #[cfg(test)]
 // mod test {
+//     use crate::lexer::lexer::Lexer;
 //     use crate::parser::parser::{ResultEval, ShuntiyardParser};
+//     use ::anyhow::Result;
+
+//     #[test]
+//     fn parsing_test() -> Result<()> {
+//         Ok(())
+//     }
 // }
