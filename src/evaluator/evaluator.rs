@@ -1,63 +1,60 @@
 use crate::parser::parser::{ASTNode, ResultEval};
-pub struct Evaluator {}
 
-impl Evaluator {
-    pub fn eval(&self, node: &ASTNode) -> Option<ResultEval> {
-        match node {
-            ASTNode::Number(value) => Some(ResultEval::Int(*value)),
-            ASTNode::Bool(value) => Some(ResultEval::Bool(*value)),
-            ASTNode::Add(left, right) => {
-                let l1 = self.eval(left);
-                let r1 = self.eval(right);
-                if !l1.is_some() && !r1.is_some() {
-                    return None;
-                } else {
-                    let val_l1 = match l1.unwrap() {
-                        ResultEval::Int(value) => value,
-                        _ => return None,
-                    };
-                    let val_l2 = match r1.unwrap() {
-                        ResultEval::Int(value) => value,
-                        _ => return None,
-                    };
-                    Some(ResultEval::Int(val_l1 + val_l2))
-                }
+pub fn eval(node: &ASTNode) -> Option<ResultEval> {
+    match node {
+        ASTNode::Number(value) => Some(ResultEval::Int(*value)),
+        ASTNode::Bool(value) => Some(ResultEval::Bool(*value)),
+        ASTNode::Add(left, right) => {
+            let l1 = eval(left);
+            let r1 = eval(right);
+            if !l1.is_some() && !r1.is_some() {
+                return None;
+            } else {
+                let val_l1 = match l1.unwrap() {
+                    ResultEval::Int(value) => value,
+                    _ => return None,
+                };
+                let val_l2 = match r1.unwrap() {
+                    ResultEval::Int(value) => value,
+                    _ => return None,
+                };
+                Some(ResultEval::Int(val_l1 + val_l2))
             }
-            ASTNode::Multiply(left, right) => {
-                let l1 = self.eval(left);
-                let r1 = self.eval(right);
-                if !l1.is_some() && !r1.is_some() {
-                    None
-                } else {
-                    let val_l1 = match l1.unwrap() {
-                        ResultEval::Int(value) => value,
-                        _ => return None,
-                    };
-                    let val_l2 = match r1.unwrap() {
-                        ResultEval::Int(value) => value,
-                        _ => return None,
-                    };
-                    Some(ResultEval::Int(val_l1 * val_l2))
-                }
+        }
+        ASTNode::Multiply(left, right) => {
+            let l1 = eval(left);
+            let r1 = eval(right);
+            if !l1.is_some() && !r1.is_some() {
+                None
+            } else {
+                let val_l1 = match l1.unwrap() {
+                    ResultEval::Int(value) => value,
+                    _ => return None,
+                };
+                let val_l2 = match r1.unwrap() {
+                    ResultEval::Int(value) => value,
+                    _ => return None,
+                };
+                Some(ResultEval::Int(val_l1 * val_l2))
             }
-            ASTNode::Or(left, right) => {
-                let l1 = self.eval(left);
-                if !l1.is_some() {
-                    None
-                } else {
-                    match l1.unwrap() {
-                        ResultEval::Int(_) => return None,
-                        ResultEval::Bool(true) => return Some(ResultEval::Bool(true)),
-                        _ => {
-                            let r1 = self.eval(right);
-                            if !r1.is_some() {
-                                return None;
-                            } else {
-                                match r1.unwrap() {
-                                    ResultEval::Int(_) => return None,
-                                    ResultEval::Bool(true) => return Some(ResultEval::Bool(true)),
-                                    _ => return Some(ResultEval::Bool(false)),
-                                }
+        }
+        ASTNode::Or(left, right) => {
+            let l1 = eval(left);
+            if !l1.is_some() {
+                None
+            } else {
+                match l1.unwrap() {
+                    ResultEval::Int(_) => return None,
+                    ResultEval::Bool(true) => return Some(ResultEval::Bool(true)),
+                    _ => {
+                        let r1 = eval(right);
+                        if !r1.is_some() {
+                            return None;
+                        } else {
+                            match r1.unwrap() {
+                                ResultEval::Int(_) => return None,
+                                ResultEval::Bool(true) => return Some(ResultEval::Bool(true)),
+                                _ => return Some(ResultEval::Bool(false)),
                             }
                         }
                     }
@@ -70,15 +67,13 @@ impl Evaluator {
 #[cfg(test)]
 mod test {
     use crate::{
-        evaluator::evaluator::Evaluator,
+        evaluator::evaluator::eval,
         parser::parser::{ASTNode, ResultEval},
     };
     use anyhow::Result;
 
     #[test]
-    fn eval() -> Result<()> {
-        let evaluator = Evaluator {};
-
+    fn eval_test() -> Result<()> {
         let ast1 = ASTNode::Add(
             Box::new(ASTNode::Number(1)),
             Box::new(ASTNode::Multiply(
@@ -86,7 +81,7 @@ mod test {
                 Box::new(ASTNode::Number(1)),
             )),
         );
-        let result = evaluator.eval(&ast1).unwrap();
+        let result = eval(&ast1).unwrap();
         let val_eval = match result {
             ResultEval::Int(value) => value,
             _ => unreachable!(),
@@ -100,7 +95,7 @@ mod test {
                 Box::new(ASTNode::Number(0)),
             )),
         );
-        let result = evaluator.eval(&ast2).unwrap();
+        let result = eval(&ast2).unwrap();
         let val_eval = match result {
             ResultEval::Int(value) => value,
             _ => unreachable!(),
@@ -115,7 +110,7 @@ mod test {
             )),
         );
 
-        let result = evaluator.eval(&ast3).unwrap();
+        let result = eval(&ast3).unwrap();
         let val_eval = match result {
             ResultEval::Int(value) => value,
             _ => unreachable!(),
@@ -129,7 +124,7 @@ mod test {
                 Box::new(ASTNode::Number(0)),
             )),
         );
-        let result = evaluator.eval(&ast4).unwrap();
+        let result = eval(&ast4).unwrap();
         let val_eval = match result {
             ResultEval::Int(value) => value,
             _ => unreachable!(),
@@ -176,7 +171,6 @@ mod test {
 
     #[test]
     fn parse_expression_bool_none_test() {
-        let evaluator = Evaluator {};
         let inputs = vec![
             (
                 ASTNode::Add(Box::new(ASTNode::Bool(true)), Box::new(ASTNode::Number(1))),
@@ -190,7 +184,7 @@ mod test {
 
         for (input, exp_result) in inputs {
             println!("Expression to parse {:?}", input);
-            let result_eval = evaluator.eval(&input);
+            let result_eval = eval(&input);
             println!(
                 "Expression to parse {:?} Evaluation of Ast {:?} excpected value {:?}",
                 input, result_eval, exp_result
@@ -201,7 +195,6 @@ mod test {
 
     #[test]
     fn parse_expression_bool_valid_test() {
-        let evaluator = Evaluator {};
         let inputs = vec![
             (
                 ASTNode::Or(
@@ -218,7 +211,7 @@ mod test {
 
         for (input, exp_result) in inputs {
             println!("Expression to parse {:?}", input);
-            let result_eval = evaluator.eval(&input).unwrap();
+            let result_eval = eval(&input).unwrap();
             println!(
                 "Expression to parse {:?} Evaluation of Ast {:?} excpected value {:?}",
                 input, result_eval, exp_result
