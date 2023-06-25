@@ -16,8 +16,8 @@ This project is part of the ModelBasedSW course.
 This project consists of a lexer, a parser, a simplifier and the evaluator. 
 
 ### Lexer
-The lexer turns the input string into a stream of tokens. Whitespaces are skipped. 
-<br>The following characters are assigned to token types. Other characters are unallowed: 
+The lexer turns the input string into a stream of tokens. 
+<br>The following characters are assigned to token types: 
 ```
     "1" => One
     "0" => Zero
@@ -30,7 +30,15 @@ The lexer turns the input string into a stream of tokens. Whitespaces are skippe
     "false" => False
     End of file => Eof
 ```
-<br> .
+Whitespaces are skipped. Other characters are unallowed. 
+
+### Parser
+This project uses the Shunting Yard algorithm to handle operator precedence and ensure that the AST reflects the correct order of operations. AST multiplication nodes are checked for 0 values. The method reads tokens from the lexer until the end of the input (Token::Eof) is reached.
+
+### Simplifier
+The evaluator simplifies zero product properties like 0*x = 0
+
+### Evaluator
 
 ## usage:
 ### context free grammar
