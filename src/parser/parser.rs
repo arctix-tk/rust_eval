@@ -48,16 +48,6 @@ impl ShuntiyardParser {
         return parser;
     }
 
-    // checks if left or right side of multiplication is 0 to simply evaluation
-    pub fn check_for_zero(&self, l_node: ASTNode, r_node: ASTNode) -> ASTNode {
-        if (l_node == ASTNode::Number(0)) | (r_node == ASTNode::Number(0)) {
-            //println!("One side of tree is zero");
-            return ASTNode::Number(0);
-        } else {
-            return ASTNode::Multiply(Box::new(l_node), Box::new(r_node));
-        }
-    }
-
     // pops last two nodes from output_queue and performs an operation based on the provided operator
     pub fn add_node(&mut self, operator: &Token) {
         let l_node = self.output_queue.pop().unwrap();
@@ -65,7 +55,7 @@ impl ShuntiyardParser {
 
         let node = match operator {
             Token::Add(_) => ASTNode::Add(Box::new(l_node), Box::new(r_node)),
-            Token::Mult(_) => self.check_for_zero(l_node, r_node),
+            Token::Mult(_) => ASTNode::Multiply(Box::new(l_node), Box::new(r_node)),
             Token::Or(_) => ASTNode::Or(Box::new(r_node), Box::new(l_node)),
             _ => unimplemented!("Operator not defined"),
         };
