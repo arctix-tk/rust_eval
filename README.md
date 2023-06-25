@@ -88,6 +88,6 @@ Each of the evaluation steps provides at least one unittest. The tests can be ex
 | Memory Management           | Ownership and borrowing system                    | Immutable data structures                              |
 | Error Handling              | `Result` and `Option` types                       | Monads (`Maybe`, `Either`) or custom monads             |
 |                             | Use of `anyhow` or `thiserror` crates             | Precise and composable error handling                   |
-| Immutability                | N/A                                              | Default immutability                                    |
+| Immutability                | Default immutability, overidden by `mut` keyword | Strict immutability                                    |
 |                             | N/A                                              | Transformations with immutable data structures          |
 | Functional Programming      | N/A                                              | Leveraging recursion and higher-order functions         |
