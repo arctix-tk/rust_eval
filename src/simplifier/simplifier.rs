@@ -2,13 +2,16 @@ use crate::parser::parser::ASTNode;
 
 pub fn simplify(ast: &ASTNode) -> ASTNode {
     match ast {
+        // num & bool: returns same node
         ASTNode::Number(0) => ASTNode::Number(0),
         ASTNode::Number(1) => ASTNode::Number(1),
         ASTNode::Bool(true) => ASTNode::Bool(true),
         ASTNode::Bool(false) => ASTNode::Bool(false),
+        // Add: recursively simplifies the left and right children
         ASTNode::Add(left, right) => {
             ASTNode::Add(Box::new(simplify(left)), Box::new(simplify(right)))
         }
+        // Mutiplication: checks both nodes for zero values, returns 0 if found
         ASTNode::Multiply(left, right) => {
             if (**left == ASTNode::Number(0)) | (**right == ASTNode::Number(0)) {
                 // println!("right: {:?}, left: {:?}", **right, **left);
@@ -17,12 +20,14 @@ pub fn simplify(ast: &ASTNode) -> ASTNode {
                 ASTNode::Multiply(Box::new(simplify(left)), Box::new(simplify(right)))
             }
         }
+        // Or: recursively simplifies the left and right children
         ASTNode::Or(left, right) => {
             ASTNode::Or(Box::new(simplify(left)), Box::new(simplify(right)))
         }
         _ => unreachable!(),
     }
 }
+// application of "simplify" until return input AST as the final result
 pub fn simplify_fix(ast: ASTNode) -> ASTNode {
     let ast2 = simplify(&ast);
     if ast2 == ast {

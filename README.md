@@ -36,7 +36,7 @@ Whitespaces are skipped. Other characters are unallowed.
 This project uses the Shunting Yard algorithm to handle operator precedence and ensure that the AST reflects the correct order of operations. AST multiplication nodes are checked for 0 values. The method reads tokens from the lexer until the end of the input (Token::Eof) is reached.
 
 ### Simplifier
-The evaluator simplifies zero product properties like 0*x = 0
+The evaluator simplifies zero product properties like 0*x = 0.
 
 ### Evaluator
 
