@@ -1,9 +1,12 @@
 use crate::parser::parser::{ASTNode, ResultEval};
 
+// evaluation based on AST, returns evaluated result
 pub fn eval(node: &ASTNode) -> Option<ResultEval> {
     match node {
+        // num & bool: no changes
         ASTNode::Number(value) => Some(ResultEval::Int(*value)),
         ASTNode::Bool(value) => Some(ResultEval::Bool(*value)),
+        // Add: Checks if both nodes are int & returns sum, otherwise returns None
         ASTNode::Add(left, right) => {
             let l1 = eval(left);
             let r1 = eval(right);
@@ -21,6 +24,7 @@ pub fn eval(node: &ASTNode) -> Option<ResultEval> {
                 Some(ResultEval::Int(val_l1 + val_l2))
             }
         }
+        // Multiplication: Checks if both nodes are int & returns product, otherwise returns None
         ASTNode::Multiply(left, right) => {
             let l1 = eval(left);
             let r1 = eval(right);
@@ -38,14 +42,19 @@ pub fn eval(node: &ASTNode) -> Option<ResultEval> {
                 Some(ResultEval::Int(val_l1 * val_l2))
             }
         }
+        // Or: application of short-circuit evaluation
         ASTNode::Or(left, right) => {
             let l1 = eval(left);
+            // check if left side is not none
             if !l1.is_some() {
                 None
             } else {
                 match l1.unwrap() {
+                    // Int type returns none, bool is expected
                     ResultEval::Int(_) => return None,
+                    // True returns true, OR operation is satisfied
                     ResultEval::Bool(true) => return Some(ResultEval::Bool(true)),
+                    // Rest: recursively calling eval function on right side
                     _ => {
                         let r1 = eval(right);
                         if !r1.is_some() {
