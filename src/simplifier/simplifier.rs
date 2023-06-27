@@ -101,8 +101,8 @@ mod test {
             exp_ast, simp_ast
         );
         println!(
-            "\x1b[33mits expected that the test fails, \
-            because the simplification does not simplifies ill-types expressions\x1b[0m"
+            "\x1b[33mIt's expected that this test fails, \
+            because the simplification simplifies ill-typed expressions\x1b[0m"
         );
         assert_eq!(exp_ast, simp_ast);
         Ok(())
