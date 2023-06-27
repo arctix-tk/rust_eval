@@ -44,23 +44,13 @@ impl ShuntiyardParser {
         return parser;
     }
 
-    pub fn check_for_zero(&self, l_node: ASTNode, r_node: ASTNode) -> ASTNode {
-        // check if left or right side of multiplication is 0 to simply evaluation
-        if (l_node == ASTNode::Number(0)) | (r_node == ASTNode::Number(0)) {
-            //println!("One side of tree is zero");
-            return ASTNode::Number(0);
-        } else {
-            return ASTNode::Multiply(Box::new(l_node), Box::new(r_node));
-        }
-    }
-
     pub fn add_node(&mut self, operator: &Token) {
         let l_node = self.output_queue.pop().unwrap();
         let r_node = self.output_queue.pop().unwrap();
 
         let node = match operator {
             Token::Add(_) => ASTNode::Add(Box::new(l_node), Box::new(r_node)),
-            Token::Mult(_) => self.check_for_zero(l_node, r_node),
+            Token::Mult(_) => ASTNode::Multiply(Box::new(l_node), Box::new(r_node)),
             Token::Or(_) => ASTNode::Or(Box::new(r_node), Box::new(l_node)),
             _ => unimplemented!("Operator not defined"),
         };
@@ -124,14 +114,71 @@ impl ShuntiyardParser {
     }
 }
 
-// #[cfg(test)]
-// mod test {
-//     use crate::lexer::lexer::Lexer;
-//     use crate::parser::parser::{ResultEval, ShuntiyardParser};
-//     use ::anyhow::Result;
+#[cfg(test)]
+mod test {
+    use ::anyhow::Result;
 
-//     #[test]
-//     fn parsing_test() -> Result<()> {
-//         Ok(())
-//     }
-// }
+    use crate::{lexer::lexer::Lexer, parser::parser::ASTNode};
+
+    use super::ShuntiyardParser;
+
+    #[test]
+    fn parsing_mult_add_test() -> Result<()> {
+        let input = "1 + 1 * 0";
+        let exp_result = ASTNode::Add(
+            Box::new(ASTNode::Multiply(
+                Box::new(ASTNode::Number(0)),
+                Box::new(ASTNode::Number(1)),
+            )),
+            Box::new(ASTNode::Number(1)),
+        );
+        let lexer = Lexer::new(input.into());
+        let mut parser = ShuntiyardParser::new(lexer);
+        let result = parser.parse();
+        let ast = match result {
+            Ok(ast) => ast,
+            Err(_) => panic!("Error while parsing {:?}", input),
+        };
+        assert_eq!(ast, exp_result);
+        Ok(())
+    }
+
+    #[test]
+    fn parsing_or_test() -> Result<()> {
+        let input = "1 + 1 * 0 || true";
+        let exp_result = ASTNode::Or(
+            Box::new(ASTNode::Add(
+                Box::new(ASTNode::Multiply(
+                    Box::new(ASTNode::Number(0)),
+                    Box::new(ASTNode::Number(1)),
+                )),
+                Box::new(ASTNode::Number(1)),
+            )),
+            Box::new(ASTNode::Bool(true)),
+        );
+        let lexer = Lexer::new(input.into());
+        let mut parser = ShuntiyardParser::new(lexer);
+        let result = parser.parse();
+        let ast = match result {
+            Ok(ast) => ast,
+            Err(_) => panic!("Error while parsing {:?}", input),
+        };
+        assert_eq!(ast, exp_result);
+        Ok(())
+    }
+
+    #[test]
+    fn parsing_parenthesis_test() -> Result<()> {
+        let input = "(()(()()()(1)))";
+        let exp_result = ASTNode::Number(1);
+        let lexer = Lexer::new(input.into());
+        let mut parser = ShuntiyardParser::new(lexer);
+        let result = parser.parse();
+        let ast = match result {
+            Ok(ast) => ast,
+            Err(_) => panic!("Error while parsing {:?}", input),
+        };
+        assert_eq!(ast, exp_result);
+        Ok(())
+    }
+}
