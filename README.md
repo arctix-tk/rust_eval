@@ -78,10 +78,13 @@ Each of the evaluation steps provides at least one unittest. The tests can be ex
 
 ## Comparison between Haskell and Rust
 
+### Overview
+
 | Aspect                      | Rust                                             | Haskell                                                |
 |-----------------------------|--------------------------------------------------|--------------------------------------------------------|
 | Data Types                  | Enums (`enum`)                                   | Algebraic Data Types (`data`)                           |
 |                             | Allows associated data                           | Supports sum types and product types                    |
+|                             | Box required (Otherwise recursive definition)    | Automatic garbage collection, no need for pointers   |
 | Pattern Matching            | `match` expression                               | `case` expression                                      |
 |                             | Expects exhaustive handling of cases             | Expects exhaustive handling of cases                    |
 |                             | Destructuring of enum variants                    | Destructuring of algebraic data types                   |
@@ -91,3 +94,38 @@ Each of the evaluation steps provides at least one unittest. The tests can be ex
 | Immutability                | Default immutability, overidden by `mut` keyword | Strict immutability                                    |
 |                             | N/A                                              | Transformations with immutable data structures          |
 | Functional Programming      | N/A                                              | Leveraging recursion and higher-order functions         |
+
+### Implementation of Add and Multiplication
+
+**Haskell:**
+<br>type checking for both values + calculation (addition/multiplication) can be performed in one step via pattern matching
+```
+eval (Plus e1 e2) =
+    let r1 = eval e1
+        r2 = eval e2
+    in case (r1, r2) of
+        (Just (Left i1), Just (Left i2)) -> Just (Left (i1 + i2))
+        (_, _) -> Nothing
+```
+
+**Rust:**
+<br>explicit checks and option handling are necessary to ensure that the types are correct before calculation takes place
+```
+ASTNode::Add(left, right) => {
+    let l1 = eval(left);
+    let r1 = eval(right);
+    if !l1.is_some() && !r1.is_some() {
+        return None;
+    } else {
+        let val_l1 = match l1.unwrap() {
+            ResultEval::Int(value) => value,
+            _ => return None,
+        };
+        let val_l2 = match r1.unwrap() {
+            ResultEval::Int(value) => value,
+            _ => return None,
+        };
+        Some(ResultEval::Int(val_l1 + val_l2))
+    }
+}
+```
