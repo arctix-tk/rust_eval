@@ -2,13 +2,16 @@ use crate::parser::parser::ASTNode;
 
 pub fn simplify(ast: &ASTNode) -> ASTNode {
     match ast {
+        // num & bool: returns same node
         ASTNode::Number(0) => ASTNode::Number(0),
         ASTNode::Number(1) => ASTNode::Number(1),
         ASTNode::Bool(true) => ASTNode::Bool(true),
         ASTNode::Bool(false) => ASTNode::Bool(false),
+        // Add: recursively simplifies the left and right children
         ASTNode::Add(left, right) => {
             ASTNode::Add(Box::new(simplify(left)), Box::new(simplify(right)))
         }
+        // Mutiplication: checks both nodes for zero values, returns 0 if found
         ASTNode::Multiply(left, right) => {
             if (**left == ASTNode::Number(0)) | (**right == ASTNode::Number(0)) {
                 // println!("right: {:?}, left: {:?}", **right, **left);
@@ -17,12 +20,14 @@ pub fn simplify(ast: &ASTNode) -> ASTNode {
                 ASTNode::Multiply(Box::new(simplify(left)), Box::new(simplify(right)))
             }
         }
+        // Or: recursively simplifies the left and right children
         ASTNode::Or(left, right) => {
             ASTNode::Or(Box::new(simplify(left)), Box::new(simplify(right)))
         }
         _ => unreachable!(),
     }
 }
+// application of "simplify" until return input AST as the final result
 pub fn simplify_fix(ast: ASTNode) -> ASTNode {
     let ast2 = simplify(&ast);
     if ast2 == ast {
@@ -32,11 +37,13 @@ pub fn simplify_fix(ast: ASTNode) -> ASTNode {
     }
 }
 
+
 #[cfg(test)]
 mod test {
     use anyhow::{Ok, Result};
 
     use crate::{parser::parser::ASTNode, simplifier::simplifier::simplify_fix};
+    // testing simplification of ASTNode::Multiply expression with a Number node of 0
     #[test]
     fn simplify_fix_mult_zero_test() -> Result<()> {
         let ast1 = ASTNode::Multiply(
@@ -55,6 +62,8 @@ mod test {
         assert_eq!(simp_ast, exp_ast);
         Ok(())
     }
+    // testing general behavior of simplify_fix with an ASTNode::Multiply expression 
+    // (expecting result to be same as input)
     #[test]
     fn simplify_fix_test() -> Result<()> {
         let ast1 = ASTNode::Multiply(
@@ -79,6 +88,7 @@ mod test {
         assert_eq!(exp_ast, simp_ast);
         Ok(())
     }
+    // testing ASTNode::Or expression with a complex nested structure
     #[test]
     fn simplify_or_test() -> Result<()> {
         let ast1 = ASTNode::Multiply(

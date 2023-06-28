@@ -2,6 +2,7 @@ use std::fmt::Display;
 
 use anyhow::Result;
 
+/// represents different types of tokens recognized by the lexer
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Token {
     One,
@@ -13,10 +14,11 @@ pub enum Token {
     Or(u8),
     True,
     False,
-    Eof,
+    Eof, // end of file
 }
 
 impl Display for Token {
+    /// Pretty printing
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         return match self {
             Token::One => write!(f, "1"),
@@ -33,14 +35,18 @@ impl Display for Token {
     }
 }
 
+/// Lexer struct that tokenizes the input string
 pub struct Lexer {
+    /// holds state of the lexer: current position + character in the input stream
     position: usize,
     read_position: usize,
     ch: u8,
     input: Vec<u8>,
 }
 
+/// Lexer struct that tokenizes the input string
 impl Lexer {
+    /// creates a new lexer instance, initializes lexer state
     pub fn new(input: String) -> Lexer {
         let mut lex = Lexer {
             position: 0,
@@ -52,9 +58,13 @@ impl Lexer {
         return lex;
     }
 
+    /// retrieves the next token from the input string until EOF
     pub fn next_token(&mut self) -> Result<Token> {
+
+        // skip any whitespace characters
         self.skip_whitespace();
 
+        // assign input string with token type
         let tok = match self.ch {
             b'(' => Token::LPar,
             b')' => Token::RPar,
@@ -64,6 +74,7 @@ impl Lexer {
             b'1' => Token::One,
             b'a'..=b'z' | b'A'..=b'Z' | b'|' | b'_' => {
                 let ident = self.read_ident();
+                // match found identifier with existing token types
                 return Ok(match ident.as_str() {
                     "false" => Token::False,
                     "true" => Token::True,
@@ -71,7 +82,7 @@ impl Lexer {
                     _ => unreachable!("Unallowed character"),
                 });
             }
-            0 => Token::Eof,
+            0 => Token::Eof, // end of file
             _ => unreachable!("Unallowed character"),
         };
 
@@ -79,21 +90,25 @@ impl Lexer {
         return Ok(tok);
     }
 
+    /// skips any whitespace characters of input string
     fn skip_whitespace(&mut self) {
         while self.ch.is_ascii_whitespace() {
             self.read_char();
         }
     }
 
+    /// reads an identifier from the input stream
     fn read_ident(&mut self) -> String {
         let pos = self.position;
+        // position advaces until stop 
         while self.ch.is_ascii_alphabetic() || self.ch == b'_' || self.ch == b'|' {
             self.read_char();
         }
-
+        // returns string of found identifier
         return String::from_utf8_lossy(&self.input[pos..self.position]).to_string();
     }
 
+    /// reads the next character from the input stream & updates the lexer's state accordingly
     fn read_char(&mut self) {
         if self.read_position >= self.input.len() {
             self.ch = 0
