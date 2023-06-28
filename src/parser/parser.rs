@@ -127,14 +127,71 @@ impl ShuntiyardParser {
     }
 }
 
-// #[cfg(test)]
-// mod test {
-//     use crate::lexer::lexer::Lexer;
-//     use crate::parser::parser::{ResultEval, ShuntiyardParser};
-//     use ::anyhow::Result;
+#[cfg(test)]
+mod test {
+    use ::anyhow::Result;
 
-//     #[test]
-//     fn parsing_test() -> Result<()> {
-//         Ok(())
-//     }
-// }
+    use crate::{lexer::lexer::Lexer, parser::parser::ASTNode};
+
+    use super::ShuntiyardParser;
+
+    #[test]
+    fn parsing_mult_add_test() -> Result<()> {
+        let input = "1 + 1 * 0";
+        let exp_result = ASTNode::Add(
+            Box::new(ASTNode::Multiply(
+                Box::new(ASTNode::Number(0)),
+                Box::new(ASTNode::Number(1)),
+            )),
+            Box::new(ASTNode::Number(1)),
+        );
+        let lexer = Lexer::new(input.into());
+        let mut parser = ShuntiyardParser::new(lexer);
+        let result = parser.parse();
+        let ast = match result {
+            Ok(ast) => ast,
+            Err(_) => panic!("Error while parsing {:?}", input),
+        };
+        assert_eq!(ast, exp_result);
+        Ok(())
+    }
+
+    #[test]
+    fn parsing_or_test() -> Result<()> {
+        let input = "1 + 1 * 0 || true";
+        let exp_result = ASTNode::Or(
+            Box::new(ASTNode::Add(
+                Box::new(ASTNode::Multiply(
+                    Box::new(ASTNode::Number(0)),
+                    Box::new(ASTNode::Number(1)),
+                )),
+                Box::new(ASTNode::Number(1)),
+            )),
+            Box::new(ASTNode::Bool(true)),
+        );
+        let lexer = Lexer::new(input.into());
+        let mut parser = ShuntiyardParser::new(lexer);
+        let result = parser.parse();
+        let ast = match result {
+            Ok(ast) => ast,
+            Err(_) => panic!("Error while parsing {:?}", input),
+        };
+        assert_eq!(ast, exp_result);
+        Ok(())
+    }
+
+    #[test]
+    fn parsing_parenthesis_test() -> Result<()> {
+        let input = "(()(()()()(1)))";
+        let exp_result = ASTNode::Number(1);
+        let lexer = Lexer::new(input.into());
+        let mut parser = ShuntiyardParser::new(lexer);
+        let result = parser.parse();
+        let ast = match result {
+            Ok(ast) => ast,
+            Err(_) => panic!("Error while parsing {:?}", input),
+        };
+        assert_eq!(ast, exp_result);
+        Ok(())
+    }
+}

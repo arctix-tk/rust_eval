@@ -142,42 +142,6 @@ mod test {
         Ok(())
     }
 
-    // #[test]
-    // fn parse_expression_test() {
-    //     let inputs = vec![
-    //         ("( 1 + 0 ) * 1", 1),
-    //         ("1 + 1 + 1", 3),
-    //         ("0*0*0*0*0*0", 0),
-    //         ("((1+1)*0+1*(1+0))", 1),
-    //         ("(()()()()(((1))))", 1),
-    //         ("(1*1)*0", 0),
-    //         ("1+0", 1),
-    //     ];
-    //     let mut parser = ShuntiyardParser::new();
-
-    //     for (input, exp_result) in inputs {
-    //         //println!("Expression to parse {:?}", input);
-    //         let parse_result = parser.parse(input.into());
-    //         let _ast = match parse_result {
-    //             Ok(output_queue) => {
-    //                 //println!("Ast {:?}", output_queue);
-    //                 let result_eval = output_queue.evaluate().unwrap();
-    //                 let val_eval = match result_eval {
-    //                     ResultEval::Int(value) => value,
-    //                     _ => panic!("There should be no other value then an int"),
-    //                 };
-
-    //                 println!(
-    //                     "Expression to parse {:?} Evaluation of Ast {:?} excpected value {:?}",
-    //                     input, val_eval, exp_result
-    //                 );
-    //                 assert_eq!(exp_result, val_eval);
-    //             }
-    //             Err(err) => panic!("Problem while parsing: {:?}", err),
-    //         };
-    //     }
-    // }
-
     #[test]
     fn parse_expression_bool_none_test() {
         let inputs = vec![
